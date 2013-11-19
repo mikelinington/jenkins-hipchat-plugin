@@ -199,6 +199,8 @@ public class ActiveNotifier implements FineGrainedNotifier {
                 .append(failCount).append(" failed | ")
                 .append(skipCount).append(" skipped | ")
                 .append(totalCount).append(" total");
+            String url = notifier.getBuildServerUrl() + build.getUrl() + "testReport";
+            message.append("  (<a href='").append(url).append("'>Report</a>)");
             return this;
         }
 
