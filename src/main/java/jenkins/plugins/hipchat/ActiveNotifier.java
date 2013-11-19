@@ -5,6 +5,7 @@ import hudson.model.*;
 import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.AffectedFile;
 import hudson.scm.ChangeLogSet.Entry;
+import hudson.tasks.test.AbstractTestResultAction;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
@@ -118,7 +119,9 @@ public class ActiveNotifier implements FineGrainedNotifier {
         MessageBuilder message = new MessageBuilder(notifier, r);
         message.appendStatusMessage();
         message.appendDuration();
-        return message.appendOpenLink().toString();
+        return message.appendOpenLink()
+                .appendTestResults()
+                .toString();
     }
 
     public static class MessageBuilder {
@@ -181,6 +184,21 @@ public class ActiveNotifier implements FineGrainedNotifier {
         public MessageBuilder appendDuration() {
             message.append(" after ");
             message.append(build.getDurationString());
+            return this;
+        }
+        public MessageBuilder appendTestResults() {
+            AbstractTestResultAction results = build.getTestResultAction();
+            if (results == null) {
+                message.append(" - <b>No test results were found</b>");
+                return this;
+            }
+            int failCount = results.getFailCount();
+            int skipCount = results.getSkipCount();
+            int totalCount = results.getTotalCount();
+            message.append("  ")
+                .append(failCount).append(" failed | ")
+                .append(skipCount).append(" skipped | ")
+                .append(totalCount).append(" total");
             return this;
         }
 
